@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const useFetch = (url) => {
   const [data, setData] = useState(null);
@@ -20,12 +20,9 @@ const useFetch = (url) => {
       setData(result);
       setError(null);
     } catch (err) {
-      if (err.name === 'TypeError') {
-        setError('Network error. Please check your internet connection.');
-      } else {
-        setError(err.message || 'An error occurred while fetching data.');
-      }
-      setData(null);
+    setError(err.message || 'Failed to fetch data.');
+    setData(null);
+    
     } finally {
       setLoading(false);
     }
