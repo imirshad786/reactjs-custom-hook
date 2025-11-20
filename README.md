@@ -18,34 +18,41 @@ It efficiently manages **loading**, **error**, and **response states** while fet
 ## 🧠 Hook Overview
 
 ```js
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 const useFetch = (url) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!url) return;
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Network response was not ok");
-        const json = await response.json();
-        setData(json);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+    try {
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
-    };
 
-    fetchData();
+      const result = await response.json();
+      setData(result);
+      setError(null);
+    } catch (err) {
+    setError(err.message || 'Failed to fetch data.');
+    setData(null);
+    
+    } finally {
+      setLoading(false);
+    }
   }, [url]);
+
+  useEffect(() => {
+    if (url) {
+      fetchData();
+    }
+  }, [url, fetchData]);
 
   return { data, loading, error };
 };
